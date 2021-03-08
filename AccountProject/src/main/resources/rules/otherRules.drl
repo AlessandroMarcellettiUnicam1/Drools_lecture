@@ -1,0 +1,86 @@
+//created on: 8 mar 2021
+package com.sample
+
+//list any import classes here.
+import com.sample.Account
+import com.sample.CashFlow
+import com.sample.AccountingPeriod
+
+
+//declare any global variables here
+
+
+
+
+// * "in" Constraint
+
+rule "The cashFlow can be a  credit or a debit"
+
+    when
+        $cash :CashFlow(type in ( CashFlow.DEBIT,CashFlow.CREDIT) )
+
+    then
+        System.out.println("The cashFlow is a credit or a debit");
+end
+
+
+
+// * Nested Accessor This allows to add a constraint to an attribute class without the need to add the linked object to the session.
+
+rule "Accessor"
+    when
+        $cash :PrivateAccount( owner.name =="Héron" )
+    then
+        System.out.println("Account is owned by Héron");
+end
+
+
+
+// * And/or It is possible to do constraints on attribute like in java.
+
+rule "infixAnd"
+    when
+      ( $c1 : Customer ( country=="GB") and  PrivateAccount(  owner==$c1))
+            or
+       ( $c1 : Customer (country=="US") and PrivateAccount(  owner==$c1))
+    then
+        System.out.println("Person lives in GB or US");
+end 
+
+
+// * not This allows to test if no fact of a type is in the session.
+
+rule "no customer"
+    when
+        not Customer(  )
+    then
+        System.out.println("No customer");
+end
+
+
+// * exist On the contrary of previous syntax, this allows to test if there at least one fact type is in the session.
+
+rule "Exists"
+    when
+        exists Account(  )
+    then
+        showResult.showText("Account exists");
+end
+
+
+
+// * ForAll We would like to verify that every cashflow instance is linked to an Account instance.
+
+rule "ForAll"
+    when
+        forall (   Account( $no : accountNo  )
+                    CashFlow( accountNo  == $no)
+                   )
+    then
+        showResult.showText("All cashflows are related to an Account ");
+end
+
+
+
+
+
